@@ -2,6 +2,7 @@ import { useRiskStore } from '../store/useRiskStore';
 import { motion } from 'framer-motion';
 import Tooltip from './ui/Tooltip';
 import { ShieldCheck, AlertCircle, BookOpen, CheckCircle2, XCircle } from 'lucide-react';
+import RegionalRiskAlert from './risk/RegionalRiskAlert';
 
 export default function Step4_Coverages() {
   const { policy, updateCoverages, umMatching, setUMMatching, nextStep, prevStep } = useRiskStore();
@@ -29,6 +30,8 @@ export default function Step4_Coverages() {
         <h2 style={{ marginBottom: '1rem' }}>Current <span className="text-gold">Coverage</span></h2>
         <p className="text-grey">Select the limits found on your Declarations page.</p>
       </div>
+
+      <RegionalRiskAlert stateCode={policy.stateCode} />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '2.5rem' }}>
         
