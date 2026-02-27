@@ -3,8 +3,6 @@
  * Uses Web Crypto API (AES-GCM) for data-at-rest protection in LocalStorage.
  */
 
-const ENCRYPTION_KEY_NAME = 'mts_audit_iv';
-
 async function getOrCreateKey(): Promise<CryptoKey> {
   const salt = new TextEncoder().encode('mrtechsys-sovereign-audit-v1');
   // In a production app, this would ideally be derived from a user session or a hardware-bound key.
@@ -72,7 +70,7 @@ export const encryptedStorage = {
     localStorage.setItem(name, storageValue);
   },
 
-  removeItem: (name: string): void => {
+  removeItem: async (name: string): Promise<void> => {
     localStorage.removeItem(name);
   },
 };
