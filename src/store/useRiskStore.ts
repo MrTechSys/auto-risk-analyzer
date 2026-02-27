@@ -9,6 +9,11 @@ interface Message {
   text: string;
 }
 
+interface Toast {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 interface RiskState {
   currentStep: number;
   policy: Policy;
@@ -16,6 +21,7 @@ interface RiskState {
   umMatching: boolean;
   messages: Message[];
   isExtracting: boolean;
+  toast: Toast | null;
   
   // Actions
   setStep: (step: number) => void;
@@ -34,6 +40,7 @@ interface RiskState {
   generateReport: () => void; 
   setReport: (report: RiskReport | null) => void;
   reset: () => void;
+  setToast: (toast: Toast | null) => void;
 }
 
 const initialPolicy: Policy = {
@@ -65,6 +72,7 @@ export const useRiskStore = create<RiskState>()(
       umMatching: false,
       messages: [{ role: 'assistant', text: 'I am MrTechSysGPT. Ask me anything about your coverage, risk factors, or insurance terminology.' }],
       isExtracting: false,
+      toast: null,
 
       setStep: (step) => set({ currentStep: step }),
       nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
@@ -156,6 +164,8 @@ export const useRiskStore = create<RiskState>()(
         localStorage.removeItem('risk-storage');
         set({ currentStep: 1, policy: initialPolicy, report: null, umMatching: false, messages: [{ role: 'assistant', text: 'I am MrTechSysGPT. Ask me anything about your coverage, risk factors, or insurance terminology.' }] });
       },
+
+      setToast: (toast) => set({ toast }),
     }),
     {
       name: 'risk-storage',

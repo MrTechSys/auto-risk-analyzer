@@ -19,7 +19,7 @@ const vehicleSchema = z.object({
 });
 
 export default function Step3_VehiclesDrivers() {
-  const { policy, addDriver, removeDriver, addVehicle, removeVehicle, nextStep, prevStep } = useRiskStore();
+  const { policy, addDriver, removeDriver, addVehicle, removeVehicle, nextStep, prevStep, setToast } = useRiskStore();
   
   const [driverName, setDriverName] = useState('');
   const [driverAge, setDriverAge] = useState('');
@@ -65,7 +65,7 @@ export default function Step3_VehiclesDrivers() {
       gender: driverGender
     });
     if (!result.success) {
-      alert(result.error.issues[0].message);
+      setToast({ message: result.error.issues[0].message, type: 'error' });
       return;
     }
     addDriver({
@@ -79,6 +79,7 @@ export default function Step3_VehiclesDrivers() {
     setDriverName('');
     setDriverAge('');
     setDriverGender('');
+    setToast({ message: "Driver added successfully", type: 'success' });
   };
 
   const handleAddVehicle = () => {
@@ -89,7 +90,7 @@ export default function Step3_VehiclesDrivers() {
       vin: vehicleVIN 
     });
     if (!result.success) {
-      alert(result.error.issues[0].message);
+      setToast({ message: result.error.issues[0].message, type: 'error' });
       return;
     }
     addVehicle({
@@ -104,6 +105,7 @@ export default function Step3_VehiclesDrivers() {
     setVehicleYear('');
     setVehicleVIN('');
     setVinIntel(null);
+    setToast({ message: "Vehicle added successfully", type: 'success' });
   };
 
   const handleNext = () => {

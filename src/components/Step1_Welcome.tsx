@@ -5,7 +5,7 @@ import { Upload, ChevronRight, Loader2, ShieldCheck, FileText } from 'lucide-rea
 import { extractPolicyData } from '../utils/extraction';
 
 export default function Step1_Welcome() {
-  const { nextStep, setIsExtracting, isExtracting, updatePolicy, updateCoverages, policy } = useRiskStore();
+  const { nextStep, setIsExtracting, isExtracting, updatePolicy, updateCoverages, policy, setToast } = useRiskStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(policy.redactedImageUrl || null);
 
@@ -16,11 +16,11 @@ export default function Step1_Welcome() {
     // MIME & Size Checks
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
     if (!allowedTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a PDF, PNG, or JPG.");
+      setToast({ message: "Invalid file type. Please upload a PDF, PNG, or JPG.", type: 'error' });
       return;
     }
     if (file.size > 5 * 1024 * 1024) { // 5MB Limit
-      alert("File too large. Maximum size is 5MB.");
+      setToast({ message: "File too large. Maximum size is 5MB.", type: 'error' });
       return;
     }
 
@@ -38,8 +38,9 @@ export default function Step1_Welcome() {
         source: 'ocr' 
       });
       
+      setToast({ message: "AI Extraction Successful. Please verify details.", type: 'success' });
     } catch (error) {
-      alert("AI Extraction failed: " + (error as Error).message);
+      setToast({ message: "AI Extraction failed: " + (error as Error).message, type: 'error' });
     } finally {
       setIsExtracting(false);
     }

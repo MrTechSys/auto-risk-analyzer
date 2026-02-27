@@ -57,7 +57,7 @@ export async function decodeVIN(vin: string): Promise<VINIntel | null> {
 /**
  * Parses ADAS features from NHTSA variables if present
  */
-function extractADAS(result: any): string[] {
+function extractADAS(result: Record<string, string | number | null>): string[] {
   const features: string[] = [];
   if (result.ABS === "Standard") features.push("ABS");
   if (result.ESC === "Standard") features.push("ESC");
