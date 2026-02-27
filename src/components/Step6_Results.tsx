@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { analyzePolicy } from '../utils/riskEngine';
 import type { Policy } from '../types';
+import ScenarioSimulator from './ScenarioSimulator';
 
 export default function Step6_Results() {
   const { report, setReport, policy, reset } = useRiskStore();
@@ -149,6 +150,11 @@ export default function Step6_Results() {
               description="Covers damage to high-value vehicles or structures."
             />
           </div>
+        </section>
+
+        {/* Cinematic Scenario Simulator */}
+        <section style={{ marginBottom: '5rem' }}>
+          <ScenarioSimulator policy={policy} />
         </section>
 
         {/* Insights Row */}
