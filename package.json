@@ -1,11 +1,11 @@
 {
   "name": "mrtechsys-auto-risk-analyzer",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf dist && tsc -b && vite build && cp dist/risk/_redirects dist/_redirects",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
