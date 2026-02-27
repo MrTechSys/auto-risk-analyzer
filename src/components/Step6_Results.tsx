@@ -1,6 +1,6 @@
 import { useRiskStore } from '../store/useRiskStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertCircle, TrendingDown, CheckCircle2, FileText, Play, RotateCcw, BarChart3, Target, Briefcase } from 'lucide-react';
+import { Shield, AlertCircle, TrendingDown, CheckCircle2, FileText, Play, RotateCcw, BarChart3, Target, Briefcase, Code, Copy, Check } from 'lucide-react';
 import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -12,6 +12,8 @@ export default function Step6_Results() {
   const { report, setReport, policy, reset } = useRiskStore();
   const [isExporting, setIsExporting] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
+  const [showPayload, setShowPayload] = useState(false);
+  const [copied, setCopied] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
   if (!report || !policy) return null;
@@ -41,6 +43,13 @@ export default function Step6_Results() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const copyPayload = () => {
+    const payload = JSON.stringify({ policy, riskReport: report }, null, 2);
+    navigator.clipboard.writeText(payload);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const scoreColor = report.overallScore > 80 ? 'var(--color-success)' : report.overallScore > 50 ? 'var(--color-gold)' : 'var(--color-error)';
@@ -195,13 +204,21 @@ export default function Step6_Results() {
       </div>
 
       {/* Simulator Toggle */}
-      <div style={{ marginTop: '4rem', textAlign: 'center' }}>
+      <div style={{ marginTop: '4rem', textAlign: 'center', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
         <button 
           onClick={() => setShowSimulator(!showSimulator)}
           className="btn-secondary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '14px 28px', border: '1px dashed var(--color-gold)', background: 'transparent' }}
         >
           <Play size={18} /> {showSimulator ? 'Close Risk Simulator' : 'Enter Risk Simulator (What-If?)'}
+        </button>
+
+        <button 
+          onClick={() => setShowPayload(!showPayload)}
+          className="btn-secondary"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '14px 28px', border: '1px dashed #444', background: 'transparent' }}
+        >
+          <Code size={18} /> {showPayload ? 'Hide API Payload' : 'Carrier Integration Payload'}
         </button>
       </div>
 
@@ -211,6 +228,41 @@ export default function Step6_Results() {
             const newReport = analyzePolicy(newPolicy);
             setReport(newReport);
           }} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPayload && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            style={{ overflow: 'hidden', marginTop: '2rem', background: '#050505', border: '1px solid #222', borderRadius: '24px', padding: '2.5rem' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h4 style={{ margin: 0, color: '#00ccff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Code size={18} /> Underwriter JSON Payload
+              </h4>
+              <button 
+                onClick={copyPayload}
+                style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}
+              >
+                {copied ? <><Check size={14} color="#00ccff" /> Copied</> : <><Copy size={14} /> Copy JSON</>}
+              </button>
+            </div>
+            <pre style={{ 
+              background: '#000', 
+              padding: '1.5rem', 
+              borderRadius: '12px', 
+              fontSize: '0.8rem', 
+              color: '#00ccff', 
+              overflowX: 'auto',
+              border: '1px solid #111',
+              fontFamily: 'monospace'
+            }}>
+              {JSON.stringify({ policy, riskReport: report }, null, 2)}
+            </pre>
+          </motion.div>
         )}
       </AnimatePresence>
 
