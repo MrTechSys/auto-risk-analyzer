@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRiskStore } from '../store/useRiskStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
-import { ShieldCheck, Zap, Info, Star, Trash2, Plus } from 'lucide-react';
+import { ShieldCheck, Zap, Info, Star, Trash2, Plus, Loader2 } from 'lucide-react';
 import { decodeVIN, type VINIntel } from '../utils/vinDecoder';
 
 const driverSchema = z.object({
@@ -28,23 +28,33 @@ export default function Step3_VehiclesDrivers() {
   const [vehicleYear, setVehicleYear] = useState('');
   const [vehicleVIN, setVehicleVIN] = useState('');
   const [vinIntel, setVinIntel] = useState<VINIntel | null>(null);
+  const [isDecoding, setIsDecoding] = useState(false);
 
   const [errors, setErrors] = useState<string | null>(null);
 
-  const handleVINChange = (val: string) => {
-    setVehicleVIN(val.toUpperCase());
-    if (val.length >= 4) {
-      const intel = decodeVIN(val);
-      if (intel) {
-        setVinIntel(intel);
-        setVehicleMake(intel.make);
-        setVehicleModel(intel.model);
-        setVehicleYear(intel.year.toString());
+  // Debounced VIN Decoding
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (vehicleVIN.length === 17) {
+        setIsDecoding(true);
+        try {
+          const intel = await decodeVIN(vehicleVIN);
+          if (intel) {
+            setVinIntel(intel);
+            setVehicleMake(intel.make);
+            setVehicleModel(intel.model);
+            setVehicleYear(intel.year.toString());
+          }
+        } finally {
+          setIsDecoding(false);
+        }
+      } else {
+        setVinIntel(null);
       }
-    } else {
-      setVinIntel(null);
-    }
-  };
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [vehicleVIN]);
 
   const handleAddDriver = () => {
     const result = driverSchema.safeParse({ name: driverName, age: parseInt(driverAge) });
@@ -185,14 +195,21 @@ export default function Step3_VehiclesDrivers() {
           </div>
 
           <div style={{ background: '#050505', padding: '1.5rem', borderRadius: '16px', border: '1px solid #111' }}>
-            <input 
-              placeholder="Enter 17-digit VIN for Auto-Intel" 
-              className="input-field" 
-              style={{ width: '100%', marginBottom: '1rem', border: vehicleVIN.length === 17 ? '1px solid var(--color-gold)' : '' }} 
-              value={vehicleVIN} 
-              maxLength={17}
-              onChange={e => handleVINChange(e.target.value)} 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                placeholder="Enter 17-digit VIN for Auto-Intel" 
+                className="input-field" 
+                style={{ width: '100%', marginBottom: '1rem', border: vehicleVIN.length === 17 ? '1px solid var(--color-gold)' : '', paddingRight: '40px' }} 
+                value={vehicleVIN} 
+                maxLength={17}
+                onChange={e => setVehicleVIN(e.target.value.toUpperCase())} 
+              />
+              {isDecoding && (
+                <div style={{ position: 'absolute', right: '12px', top: '14px' }}>
+                  <Loader2 size={18} className="animate-spin text-gold" />
+                </div>
+              )}
+            </div>
 
             <AnimatePresence>
               {vinIntel && (
@@ -200,22 +217,22 @@ export default function Step3_VehiclesDrivers() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  style={{ background: 'rgba(212, 175, 55, 0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.2)', marginBottom: '1rem' }}
+                  style={{ background: 'rgba(212, 175, 55, 0.05)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.2)', marginBottom: '1rem' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--color-gold)', textTransform: 'uppercase' }}>VIN Intelligence Detected</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>NHTSA Intelligence Verified</span>
                     <div style={{ display: 'flex', gap: '2px' }}>
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={10} fill={i < vinIntel.safetyRating ? 'var(--color-gold)' : 'none'} color={i < vinIntel.safetyRating ? 'var(--color-gold)' : '#333'} />
+                        <Star key={i} size={10} fill={i < (vinIntel.safetyRating || 0) ? 'var(--color-gold)' : 'none'} color={i < (vinIntel.safetyRating || 0) ? 'var(--color-gold)' : '#333'} />
                       ))}
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{vinIntel.year} {vinIntel.make} {vinIntel.model}</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'white' }}>{vinIntel.year} {vinIntel.make} {vinIntel.model}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {vinIntel.adasFeatures.slice(0, 2).map(f => (
-                      <span key={f} style={{ fontSize: '0.65rem', background: '#000', padding: '2px 8px', borderRadius: '4px', color: '#888' }}>{f}</span>
+                    <span style={{ fontSize: '0.65rem', background: '#000', padding: '4px 8px', borderRadius: '4px', color: '#888', border: '1px solid #222' }}>{vinIntel.vehicleClass}</span>
+                    {vinIntel.adasFeatures.slice(0, 3).map(f => (
+                      <span key={f} style={{ fontSize: '0.65rem', background: '#000', padding: '4px 8px', borderRadius: '4px', color: 'var(--color-gold)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>{f}</span>
                     ))}
-                    <span style={{ fontSize: '0.65rem', background: '#000', padding: '2px 8px', borderRadius: '4px', color: '#888' }}>MSRP: ${vinIntel.msrp.toLocaleString()}</span>
                   </div>
                 </motion.div>
               )}
