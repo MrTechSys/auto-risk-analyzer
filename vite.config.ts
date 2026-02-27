@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/risk/',
   build: {
-    outDir: 'dist/risk',
+    outDir: 'dist',
     emptyOutDir: true,
   }
 })
