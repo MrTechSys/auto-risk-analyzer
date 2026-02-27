@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, Loader2, CheckCircle2, Cpu, ShieldCheck } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, Cpu } from 'lucide-react';
 import { useRiskStore } from '../store/useRiskStore';
 
 export default function PolicyIngestion() {
-  const { updatePolicy, setIsExtracting, isExtracting } = useRiskStore();
+  const { updatePolicy, setIsExtracting } = useRiskStore();
   const [status, setStatus] = useState<'idle' | 'uploading' | 'scanning' | 'complete'>('idle');
   const [fileName, setFileName] = useState<string | null>(null);
 
@@ -30,7 +30,7 @@ export default function PolicyIngestion() {
           uninsuredMotoristBodilyInjuryPerAccident: 0
         },
         drivers: [
-          { id: '1', name: 'John Doe', age: 34, gender: 'male', licenseStatus: 'active' }
+          { id: '1', firstName: 'John', lastName: 'Doe', age: 34, gender: 'M', licenseState: 'TX' }
         ],
         vehicles: [
           { id: '1', make: 'Tesla', model: 'Model 3', year: 2022, vin: '5YJ3E1EAXP...' }
