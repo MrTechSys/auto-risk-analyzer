@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, AlertCircle, ShieldAlert, Activity } from 'lucide-react';
+import { MapPin, ShieldAlert, Activity } from 'lucide-react';
 import { STATE_RULES, DEFAULT_RULE } from '../../utils/insuranceRules';
 
 interface RegionalRiskAlertProps {

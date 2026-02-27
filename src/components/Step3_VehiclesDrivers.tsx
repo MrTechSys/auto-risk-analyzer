@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useRiskStore } from '../store/useRiskStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
-import { ShieldCheck, Zap, Info, Star, Trash2, Plus, Loader2 } from 'lucide-react';
+import { ShieldCheck, Zap, Star, Trash2, Plus, Loader2 } from 'lucide-react';
 import { decodeVIN, type VINIntel } from '../utils/vinDecoder';
 
 const driverSchema = z.object({
   name: z.string().min(2, "Name is too short"),
   age: z.number().min(16, "Driver must be 16+").max(110, "Invalid age"),
+  gender: z.enum(['M', 'F']),
 });
 
 const vehicleSchema = z.object({
@@ -22,6 +23,7 @@ export default function Step3_VehiclesDrivers() {
   
   const [driverName, setDriverName] = useState('');
   const [driverAge, setDriverAge] = useState('');
+  const [driverGender, setDriverGender] = useState<'M' | 'F' | ''>('');
   
   const [vehicleMake, setVehicleMake] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
@@ -57,7 +59,11 @@ export default function Step3_VehiclesDrivers() {
   }, [vehicleVIN]);
 
   const handleAddDriver = () => {
-    const result = driverSchema.safeParse({ name: driverName, age: parseInt(driverAge) });
+    const result = driverSchema.safeParse({ 
+      name: driverName, 
+      age: parseInt(driverAge),
+      gender: driverGender
+    });
     if (!result.success) {
       alert(result.error.issues[0].message);
       return;
@@ -67,10 +73,12 @@ export default function Step3_VehiclesDrivers() {
       firstName: driverName.split(' ')[0],
       lastName: driverName.split(' ')[1] || '',
       age: parseInt(driverAge),
+      gender: driverGender as 'M' | 'F',
       licenseState: policy.stateCode,
     });
     setDriverName('');
     setDriverAge('');
+    setDriverGender('');
   };
 
   const handleAddVehicle = () => {
@@ -158,6 +166,16 @@ export default function Step3_VehiclesDrivers() {
               <input placeholder="Full Name" className="input-field" style={{ flex: 3 }} value={driverName} onChange={e => setDriverName(e.target.value)} />
               <input placeholder="Age" type="number" className="input-field" style={{ flex: 1 }} value={driverAge} onChange={e => setDriverAge(e.target.value)} />
             </div>
+            <select 
+              className="input-field" 
+              style={{ width: '100%', marginBottom: '1rem' }} 
+              value={driverGender} 
+              onChange={e => setDriverGender(e.target.value as 'M' | 'F')}
+            >
+              <option value="">Select Gender</option>
+              <option value="M">Male (M)</option>
+              <option value="F">Female (F)</option>
+            </select>
             <button onClick={handleAddDriver} className="btn-secondary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <Plus size={16} /> Add Driver
             </button>
