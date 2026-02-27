@@ -2,17 +2,17 @@ import { Link } from 'react-router-dom';
 import { useRiskStore } from '../store/useRiskStore';
 import AIAssistant from './AIAssistant';
 import { Home, Save } from 'lucide-react';
+import Toast from './ui/Toast';
 
 interface WizardShellProps {
   children: React.ReactNode;
 }
 
 export default function WizardShell({ children }: WizardShellProps) {
-  const { currentStep, reset } = useRiskStore();
+  const { currentStep, reset, setToast } = useRiskStore();
 
   const handleSave = () => {
-    alert('Report saved to local storage. Cloud sync coming soon!');
-    // Placeholder for localStorage logic
+    setToast({ message: 'Report saved to local storage. Cloud sync coming soon!', type: 'info' });
   };
 
   return (
@@ -71,6 +71,7 @@ export default function WizardShell({ children }: WizardShellProps) {
 
       {/* AI Assistant */}
       <AIAssistant />
+      <Toast />
     </div>
   );
 }
