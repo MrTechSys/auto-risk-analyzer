@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Policy, RiskReport, Vehicle, Driver, FinancialData } from '../types';
 import { analyzePolicy } from '../utils/riskEngine';
+import { encryptedStorage } from '../utils/crypto';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -158,6 +159,7 @@ export const useRiskStore = create<RiskState>()(
     }),
     {
       name: 'risk-storage',
+      storage: createJSONStorage(() => encryptedStorage),
     }
   )
 );
